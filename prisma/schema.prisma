@@ -13,13 +13,14 @@ datasource db {
 }
 
 model UserProfile {
-  id             String     @id
-  email          String     @unique
+  id             String                   @id
+  email          String                   @unique
   fullName       String?
   telegramChatId String?
-  createdAt      DateTime   @default(now())
-  updatedAt      DateTime   @updatedAt
+  createdAt      DateTime                 @default(now())
+  updatedAt      DateTime                 @updatedAt
   schedules      Schedule[]
+  memberships    OrganizationMembership[]
 
   @@map("user_profiles")
 }
@@ -37,11 +38,35 @@ model Menu {
 }
 
 model Role {
-  id         Int          @id @default(autoincrement())
-  name       String       @unique
-  menuAccess MenuAccess[]
+  id          Int                      @id @default(autoincrement())
+  name        String                   @unique
+  menuAccess  MenuAccess[]
+  memberships OrganizationMembership[]
 
   @@map("roles")
+}
+
+model Organization {
+  id          String                   @id
+  name        String
+  slug        String                   @unique
+  memberships OrganizationMembership[]
+  createdAt   DateTime                 @default(now())
+
+  @@map("organizations")
+}
+
+model OrganizationMembership {
+  id             String       @id
+  organizationId String
+  userId         String
+  roleId         Int
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user           UserProfile  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role           Role         @relation(fields: [roleId], references: [id])
+
+  @@unique([organizationId, userId])
+  @@map("organization_memberships")
 }
 
 model MenuAccess {
