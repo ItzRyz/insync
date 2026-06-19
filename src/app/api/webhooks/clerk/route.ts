@@ -52,6 +52,29 @@ export async function POST(req: Request) {
         const userId = public_user_data.user_id;
         const orgId = organization.id;
 
+        const fullName = `${public_user_data.first_name || ""} ${public_user_data.last_name || ""}`.trim();
+        const fallbackEmail = public_user_data.identifier || `${userId}@placeholder.clerk`;
+
+        await prisma.userProfile.upsert({
+            where: { id: userId },
+            update: {},
+            create: {
+                id: userId,
+                email: fallbackEmail,
+                fullName: fullName || "Clerk User",
+            }
+        });
+
+        await prisma.organization.upsert({
+            where: { id: orgId },
+            update: {},
+            create: {
+                id: orgId,
+                name: organization.name,
+                slug: organization.slug || orgId,
+            }
+        });
+
         const localRole = await prisma.role.findUnique({
             where: { name: role },
         });
@@ -81,17 +104,27 @@ export async function POST(req: Request) {
         });
     }
 
-    if (eventType === "user.created") {
-        const { id, email_addresses } = evt.data;
+    if (eventType === "user.created" || eventType === "user.updated") {
+        const { id, email_addresses, first_name, last_name } = evt.data;
 
-        if (email_addresses.length > 0) {
-            await prisma.userProfile.create({
-                data: {
-                    id: id,
-                    email: email_addresses[0].email_address,
-                },
-            });
-        }
+        const email = email_addresses && email_addresses.length > 0
+            ? email_addresses[0].email_address
+            : `${id}@placeholder.clerk`;
+
+        const fullName = `${first_name || ""} ${last_name || ""}`.trim();
+
+        await prisma.userProfile.upsert({
+            where: { id: id },
+            update: {
+                email: email,
+                fullName: fullName || null,
+            },
+            create: {
+                id: id,
+                email: email,
+                fullName: fullName || null,
+            },
+        });
     }
 
     return NextResponse.json({ success: true });

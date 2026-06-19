@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { ClerkProvider } from '@clerk/nextjs';
 import { Analytics } from "@vercel/analytics/next";
 import { ThemeProvider } from "@/components/theme-provider";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 
 const spaceGrotesk = Space_Grotesk({ subsets: ['latin'], variable: '--font-sans' });
@@ -33,7 +34,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider>
+    <ClerkProvider afterSignOutUrl="/">
       <html
         lang="en"
         className={cn("h-full", "antialiased", geistSans.variable, geistMono.variable, "font-sans", spaceGrotesk.variable)}
@@ -41,7 +42,9 @@ export default function RootLayout({
       >
         <body className="min-h-full flex flex-col">
           <ThemeProvider>
-            {children}
+            <TooltipProvider>
+              {children}
+            </TooltipProvider>
           </ThemeProvider>
           {process.env.NODE_ENV === 'production' && <Analytics />}
         </body>
