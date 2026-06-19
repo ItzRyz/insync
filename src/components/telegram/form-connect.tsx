@@ -1,6 +1,3 @@
-import { updateTelegramChatId } from "@/actions/telegram";
-import { useState, useTransition } from "react";
-import type { SubmitEvent } from "react";
 import { Button } from "../ui/button";
 import { CheckCircle2, AlertCircle } from "lucide-react";
 
