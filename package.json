@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "postbuild": "node scripts/set-telegram-webhook.mjs",
     "start": "next start",
     "lint": "biome check",
     "format": "biome format --write"
