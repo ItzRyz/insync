@@ -76,14 +76,17 @@ export async function getUserSchedules({
 
     const skip = (page - 1) * limit;
 
-    const where = search
-        ? {
-            OR: [
-                { title: { contains: search, mode: "insensitive" as const } },
-                { description: { contains: search, mode: "insensitive" as const } },
-            ],
-        }
-        : {}
+    const where = {
+        userId,
+        ...(search
+            ? {
+                OR: [
+                    { title: { contains: search, mode: "insensitive" as const } },
+                    { description: { contains: search, mode: "insensitive" as const } },
+                ],
+            }
+            : {}),
+    };
 
     const orderByInput =
         sortBy === "status"
